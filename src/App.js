@@ -27,12 +27,12 @@ function App() {
       let todo = {
         id: todos.length === 0 ? 0 : todos[todos.length - 1].id + 1,
         todo: input,
+        completed: false,
       }
 
       setTodos((prev) => {
         return [...prev, todo]
       })
-      console.log(input)
       setInput(() => {
         return null;
       })
@@ -47,44 +47,47 @@ function App() {
 
   }
 
-  const deleteTodo=(e)=>{
-    let newTodos=todos.filter((ele)=>{
+  const deleteTodo = (e) => {
+    let newTodos = todos.filter((ele) => {
       return ele.id !== +e.target.id;
     })
     setTodos(newTodos);
   }
 
+  const completedTodo = (e) => {
+
+    const newTodos = todos.map(ele => {
+      if(ele.id === +e.target.id){
+        ele.completed=!ele.completed;
+      }
+      return ele;
+    })
+
+    setTodos(newTodos);
+
+  }
+
   return (
     <div className=' app flex flex-col  '>
 
-      <div className='flex gap-20 md:gap-96 sm:gap-40 justify-between items-center py-10'>
-        {/* <input
-          className='px-3 outline-none py-1 rounded-lg '
+      <div className='flex  flex-col  sm:flex-row gap-5 md:gap-82 sm:gap-40 justify-between items-center py-10'>
+        <input
+          className='px-4 outline-none border  w-96 border-blue-900 md:w-96 sm:w-80  shadow-2xl  py-2 text-white rounded-sm bg-secndry  '
           type="text"
           placeholder='Add Todo'
           ref={inputRef}
           onChange={(e) => { getInput(e) }}
-        /> */}
-        <TextField
-          className='text-white'
-
-          startColor="secondary"
-          id="standard-basic"
-          ref={inputRef}
-          label="Add Todo"
-          focused
-          variant="standard"
-          onChange={(e) => { getInput(e) }}
         />
+
         <Button variant="contained" onClick={e => addTodos(e)}>
           Add todo
         </Button>
       </div>
 
-      <div className='px-5 flex flex-col gap-5'>
+      <div className='sm:px-5 flex flex-col gap-5'>
         {
           todos.map((ele) => {
-            return (<Todo key={ele.id} todo={ele.todo} id={ele.id} deleteTodo={deleteTodo} />);
+            return (<Todo key={ele.id} todo={ele.todo} id={ele.id} completed={ele.completed} deleteTodo={deleteTodo} completedTodo={completedTodo} />);
           })
         }
       </div>
