@@ -1,16 +1,32 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './index.css';
-import { Button, TextField } from '@mui/material'
+import { Button } from '@mui/material'
 import { Todo } from './Components/Todo';
-import { Flag } from '@mui/icons-material';
+import { db } from './Firebase';
+import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore'
 
 function App() {
-
-  const inputRef = useRef(null)
-
-
   //State to hold todos
   const [todos, setTodos] = useState([]);
+  //Get collection in firebase
+  const todosCollections = collection(db, "12345")
+  //Fetch todos into firebase
+  useEffect(() => {
+
+    const getData = async () => {
+      //Get docs from firebase
+      const d = await getDocs(todosCollections)
+      console.log(d.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+      setTodos(d.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+
+    }
+
+    getData();
+
+  }, [todos])
+
+  //Using ref to target input filed
+  const inputRef = useRef(null)
 
   //State to get input 
   const [input, setInput] = useState(null);
@@ -20,22 +36,21 @@ function App() {
     setInput(e.target.value);
   }
 
-  //Function to add todo to todos
-  const addTodos = (e) => {
-    if (input !== null) {
 
+  //Function to add todo to todos
+  const addTodos = async (e) => {
+    if (input !== null) {
+      //initail todo object
       let todo = {
-        id: todos.length === 0 ? 0 : todos[todos.length - 1].id + 1,
         todo: input,
         completed: false,
       }
 
-      setTodos((prev) => {
-        return [...prev, todo]
-      })
       setInput(() => {
         return null;
       })
+      //add doc with todo info to firebase
+      await addDoc(todosCollections, todo)
 
       inputRef.current.value = '';
 
@@ -47,23 +62,17 @@ function App() {
 
   }
 
+  //Delete todo from firebase
   const deleteTodo = (e) => {
-    let newTodos = todos.filter((ele) => {
-      return ele.id !== +e.target.id;
-    })
-    setTodos(newTodos);
+    const todoDoc = doc(db, '12345', e.target.id);
+    deleteDoc(todoDoc);
   }
 
-  const completedTodo = (e) => {
-
-    const newTodos = todos.map(ele => {
-      if(ele.id === +e.target.id){
-        ele.completed=!ele.completed;
-      }
-      return ele;
-    })
-
-    setTodos(newTodos);
+  //Update todo from firebase
+  const completedTodo = (e, completed) => {
+    const todoDoc = doc(db, '12345', e.target.id);
+    const newTodo = { completed: !completed };
+    updateDoc(todoDoc, newTodo);
 
   }
 

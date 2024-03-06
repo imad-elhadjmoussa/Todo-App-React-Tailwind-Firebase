@@ -22,7 +22,7 @@ export const Todo = ({ id, todo, deleteTodo, completedTodo, completed }) => {
             <div className='flex flex-col gap-3 sm:flex-row sm:gap-3 '>
                 <Button
                     id={id}
-                    onClick={(e) => { completedTodo(e) }}
+                    onClick={(e) => { completedTodo(e,completed) }}
                     variant="contained"
                     color="success">
                     Completed
